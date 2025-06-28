@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package discoverservicepb;
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "/discoverservicepb";
+
+// OpenAPI options for the service
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "Discover Service API";
+        version: "1.0";
+        description: "API for discover service operations";
+        contact: {
+            name: "API Support";
+            url: "https://github.com/your-repo";
+        };
+    };
+    schemes: HTTP;
+    schemes: HTTPS;
+    consumes: "application/json";
+    produces: "application/json";
+};
+
+service DiscoverService {
+    rpc GetParamInBody(GetParamInBodyRequest) returns (Response) {
+        option (google.api.http) = {
+            get: "/v1/get-param-in-body/{id}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get parameter in body";
+            description: "Retrieves parameter information from the request body";
+            tags: ["Parameters"];
+        };
+    }
+
+    rpc GetParamInHeader(GetParamInHeaderRequest) returns (Response) {
+        option (google.api.http) = {
+            get: "/v1/get-param-in-header"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get parameter in header";
+            description: "Retrieves parameter information from the request headers";
+            tags: ["Parameters"];
+        };
+    }
+
+    // Sends another greeting
+    rpc PostUnstructuredData (PostUnstructuredDataRequest) returns (PostUnstructuredDataResponse) {
+        option (google.api.http) = {
+            post: "/v1/post/unstructured-data"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Post unstructured data";
+            description: "Posts unstructured data to the service";
+            tags: ["Data"];
+        };
+    }
+}
+
+message Response {
+    string newContent = 1;
+}
+
+message GetParamInBodyRequest {   
+    string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Unique identifier for the request"
+    }];
+    string content = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Content to be processed"
+    }];
+}
+
+message GetParamInHeaderRequest {
+    string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Unique identifier for the request"
+    }];
+    string content = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Content to be processed"
+    }];
+}
+
+message PostUnstructuredDataRequest {
+    string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Unique identifier for the data"
+    }];
+    google.protobuf.Any data = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Unstructured data to be posted"
+    }];
+}
+
+message PostUnstructuredDataResponse {
+    string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Unique identifier for the response"
+    }];
+    google.protobuf.Any data = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        description: "Response data"
+    }];
+}
