@@ -45,6 +45,16 @@ service DiscoverService {
             summary: "Get parameter in header";
             description: "Retrieves parameter information from the request headers";
             tags: ["Parameters"];
+            parameters: {
+                headers: [
+                    {
+                        name: "X-Custom-Header-Id";
+                        description: "Custom header for data id";
+                        type: STRING;
+                        required: true;
+                    },
+                ]
+            }
         };
     }
 

@@ -12,4 +12,4 @@ fi
 
 # Run the server
 echo "Starting server..."
-go run server/main.go 
+go run server/*go 

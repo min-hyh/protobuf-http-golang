@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -14,9 +15,28 @@ import (
 	discoverservicepb "protobuf-http-golang/pb"
 )
 
+// customHeaderMatcher is a function that determines which HTTP headers should be forwarded as gRPC metadata
+func customHeaderMatcher(key string) (string, bool) {
+	// Convert HTTP header names to gRPC metadata keys
+	// gRPC metadata keys are typically lowercase
+	switch strings.ToLower(key) {
+	case "x-custom-header-id":
+		return "x-custom-header-id", true
+	case "authorization":
+		return "authorization", true
+	case "content-type":
+		return "content-type", true
+	default:
+		// Return false for headers we don't want to forward
+		return "", false
+	}
+}
+
 func main() {
-	// Create a new HTTP server mux
-	mux := runtime.NewServeMux()
+	// Create a new HTTP server mux with custom options
+	mux := runtime.NewServeMux(
+		runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
+	)
 
 	// Create the service implementation
 	discoverService := &server{}
