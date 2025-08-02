@@ -26,6 +26,8 @@ func customHeaderMatcher(key string) (string, bool) {
 		return "authorization", true
 	case "content-type":
 		return "content-type", true
+	case "x-request-id":
+		return "x-request-id", true
 	default:
 		// Return false for headers we don't want to forward
 		return "", false
@@ -51,10 +53,15 @@ func main() {
 		log.Fatalf("Failed to register HTTP handlers: %v", err)
 	}
 
-	// Create HTTP server
+	// Create custom error handler
+	errorHandler := &CustomErrorHandler{
+		LogErrors: true, // Enable error logging
+	}
+
+	// Create HTTP server with error handling middleware
 	httpServer := &http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: ErrorHandlingMiddleware(errorHandler)(mux),
 	}
 
 	// Start HTTP server in a goroutine
@@ -65,6 +72,13 @@ func main() {
 		log.Printf("  GET  /v1/get-param-in-header")
 		log.Printf("  POST /v1/post/unstructured-data")
 		log.Printf("  Swagger UI: http://localhost:8081/swagger-ui/")
+		log.Printf("")
+		log.Printf("Error handling examples:")
+		log.Printf("  GET  /v1/get-param-in-body/not-found     -> 404 Not Found")
+		log.Printf("  GET  /v1/get-param-in-body/unauthorized  -> 403 Forbidden")
+		log.Printf("  GET  /v1/get-param-in-body/error         -> 500 Internal Server Error")
+		log.Printf("  GET  /v1/get-param-in-header (no header) -> 400 Bad Request")
+		log.Printf("  POST /v1/post/unstructured-data (duplicate id) -> 409 Conflict")
 
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to serve HTTP: %v", err)
